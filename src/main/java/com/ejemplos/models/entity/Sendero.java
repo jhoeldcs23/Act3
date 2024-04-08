@@ -2,6 +2,10 @@ package com.ejemplos.models.entity;
 
 import java.io.Serializable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 
@@ -17,12 +21,19 @@ public class Sendero implements Serializable {
 
 	@Id
 	@Column(name="cod_sendero")
+	@NotEmpty(message = "El codigo no puede estar vacio")
 	private String codSendero;
 
+	@NotNull(message = "La dificultad no puede estar vacía")
+    @Min(value = 1, message = "La dificultad debe ser mayor que cero")
 	private String dificultad;
-
+	
+	@NotNull(message = "La distancia no puede estar vacía")
+    @Min(value = 1, message = "La distancia debe ser mayor que cero")
 	private int distancia;
 
+	@NotNull
+	@NotEmpty(message = "El nombre no puede estar vacio")
 	private String nombre;
 
 	//bi-directional many-to-one association to Municipio
