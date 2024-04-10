@@ -16,21 +16,23 @@ import org.springframework.web.bind.support.SessionStatus;
 
 import com.ejemplos.models.entity.Sendero;
 import com.ejemplos.models.entity.Municipio;
+import com.ejemplos.models.service.MunicipioServiceImpl;
 import com.ejemplos.models.service.SenderoServiceImpl;
 
 import jakarta.validation.Valid;
 
 @Controller
-@SessionAttributes("sendero")
 public class SenderoController {
 
 	@Autowired
 	private SenderoServiceImpl senderoService;
+	@Autowired
+	private MunicipioServiceImpl muniService;
 	
 	@GetMapping("/form")
 	public String mostrarFormulario(Model model) {
 		model.addAttribute("sendero", new Sendero());
-		model.addAttribute("municipios", senderoService.TMuni());
+		model.addAttribute("municipios", muniService.TMuni());
 		return "form";
 	}
 
@@ -38,17 +40,16 @@ public class SenderoController {
 	public String guardarSendero(@Valid Sendero sendero,BindingResult bindingResult, Model model) {
 
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("municipios", senderoService.TMuni());
+			model.addAttribute("municipios", muniService.TMuni());
 	        return "form";
 	    }
 		//Aqui compruebo que el codigo sendero no se repita
-		ArrayList<Sendero> aux=(ArrayList<Sendero>) senderoService.TSendero();
-		for(Sendero se : aux) {
-			if(se.getCodSendero().equalsIgnoreCase(sendero.getCodSendero())){
-				bindingResult.rejectValue("codSendero", "error.sendero", "El código del sendero ya existe");
-				model.addAttribute("municipios", senderoService.TMuni());
-				return "form";
-			}
+		Sendero existe = senderoService.findOne(sendero.getCodSendero());
+	    if (existe != null) {
+	        // El código del sendero ya existe, rechazamos la validación y mostramos un mensaje de error
+	        bindingResult.rejectValue("codSendero", "error.sendero", "El código del sendero ya existe");
+	        model.addAttribute("municipios", muniService.TMuni());
+	        return "form";
 		}
 		senderoService.save(sendero);
 	    return "redirect:/listado";
