@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
@@ -61,5 +62,31 @@ public class SenderoController {
 		model.addAttribute("senderos",senderoService.TSendero() );
 		return "listar";
 	}
+	
+	@PostMapping("/buscar")
+	   public String buscarSenderoPorCodigo(@RequestParam("codigoSendero") String codigoSendero, Model model) {
+	        Sendero sendero = senderoService.findOne(codigoSendero);
+	        if (sendero != null) {
+	            model.addAttribute("senderos", sendero);
+	        } else {
+	            model.addAttribute("mensaje", "No se encontró ningún sendero con el código especificado.");
+	        }
+	        return "listar"; 
+	    }
+	
+	@PostMapping("/borrar/{codSendero}")
+	public String borrarSendero(@PathVariable String codSendero) {
+	    // Buscar el sendero por su código
+	    Sendero sendero = senderoService.findOne(codSendero);
+	    // Verificar si el sendero existe
+	    if (sendero != null) {
+	        senderoService.delete(codSendero);
+	        return "redirect:/listado";
+	    } else {
+	        // Si el sendero no existe, redireccionar al listado con un mensaje de error
+	        return "redirect:/listado?error=El+sendero+no+existe";
+	    }
+	}
+
 
 }
